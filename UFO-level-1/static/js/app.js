@@ -1,57 +1,51 @@
 // from data.js
 var tableData = data;
 
+// use d3
 var tableTb = d3.select("tbody");
 var button = d3.select("#filter-btn");
-var Tdate = d3.select("#datetime");
-var Tcity = d3.select("#city");
-var Tcolumns = ["datetime", "city", "state", "country", "shape", "durationMinutes", "comments"];
+var clearButton = d3.select("#clear-btn");
+var form = d3.select("form");
 
-var addData = (dataInput) => {
-    dataInput.forEach(ufoSightings => {
-        var row = tableTb.append("tr");
-        Tcolumns.forEach(column => row.append("td").text(ufoSightings[column]));
-    })
-};
 
-addData(tableData);
-
-button.on("click", () => {
-    d3.event.preventDefault();
-
-    var inputDate = Tdate.property("value").trim();
-    var filterDate = tableData.filter(tableData => tableData.datetime === inputDate);
-
-    tableTb.html("");
-
-    let response = {
-        filterDate
-    }
-
-    if(response.filterDate.length !==0) {
-        addData(filterDate);
-    }
-
+data.forEach((report) => {
+    var row = tableTb.append("tr");
+    Object.entries(report).forEach(([key, value]) => {
+      var cell = row.append("td");
+      cell.text(value);
+    });
 });
 
-function runClear() {
-    // Clearing values in the inputs (placeholder goes back)
-    inputDate = d3.select("#datetime").property("value", '');
-    inputCity = d3.select("#city").property("value", '');
-    inputState = d3.select("#state").property("value", '');
-    inputCountry = d3.select("#country").property("value", '');
-    inputShape = d3.select("#shape").property("value", '');
+//Create event handler functions
+button.on("click", runEnter);
+form.on("submit",runEnter);
+
+// Complete the event handler function
+function runEnter() {
+
+    // Prevent page from refreshing
+    d3.event.preventDefault();
+    
+    // Select the input element and get the HTML node
+    var inputElement = d3.select("#datetime");
   
-    // Clear filtered table
-    tableBody.html('')
+    // Get the values from the input element
+    var inputValue = inputElement.property("value");
   
-    // Adding back original table
-    tableData.forEach((report) => {
-      var row = tableBody.append("tr");
-      Object.entries(report).forEach(([key, value]) => {
-        var cell = row.append("td");
-        cell.text(value);
-      });
+    console.log("date entered:", inputValue);
+      
+    var filteredData = tableData.filter(report => report.datetime === inputValue);
+
+    console.log('filteredData:', filteredData);
+
+    tableTb.html('')
+
+    filteredData.forEach((report) => {
+        var row = tableTb.append("tr");
+        Object.entries(report).forEach(([key, value]) => {
+            var cell = row.append("td");
+            cell.text(value);
+        });
     });
-  }
+};
 
